@@ -3,7 +3,7 @@
 Chatbot Twitch à destination des streameur·euses de l'événement caritatif Et Ta Cause.
 
 ## Prérequis
-S'enregistrer grâce à [ce lien](https://amesul.tv/streamers/register){:target="_blank"}. Il sera demandé de vous connecter avec votre compte Twitch, pour ajouter le bot à vos VIPs (nécessaire pour son fonctionnement), ainsi qu'ajouter votre chaîne. **Aucune information personnelle ni aucun accès à votre compte n'est conservé.**
+S'enregistrer grâce à [ce lien](https://amesul.tv/streamers/register). Il sera demandé de vous connecter avec votre compte Twitch, pour ajouter le bot à vos VIPs (nécessaire pour son fonctionnement), ainsi qu'ajouter votre chaîne. **Aucune information personnelle ni aucun accès à votre compte n'est conservé.**
 - Pour se connecter à une nouvelle chaine, l'ensemble du bot doit redémarrer. Jusqu'au **4 octobre à 15h**, chaque ajout de chaîne déclenche un redémarrage.
 - Afin de limiter l'impact sur les autres participant·es, passée cette date, celui-ci n'est redémarré qu'une fois par jour, à 2h du matin. **Merci de faire le nécessaire pour réaliser a minima cette première partie du tutoriel en amont.**
 
