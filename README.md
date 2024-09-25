@@ -6,7 +6,7 @@ Chatbot Twitch à destination des streameur·euses de l'événement caritatif Et
 S'enregistrer grâce à [ce lien](https://amesul.tv/streamers/register). Il sera demandé de vous connecter avec votre compte Twitch pour ajouter le bot à vos VIPs (nécessaire pour son fonctionnement), ainsi qu'à votre chaîne. **Aucune information personnelle ni aucun accès à votre compte n'est conservé.**
 
 - Pour se connecter à une nouvelle chaîne, l'ensemble du bot doit redémarrer. Jusqu'au **4 octobre à 15h**, chaque ajout de chaîne déclenche un redémarrage.
-- Afin de limiter l'impact sur les autres participant·es, passée cette date, le bot ne sera redémarré qu'une fois par jour, à 2h du matin. **Merci de faire le nécessaire pour réaliser au minimum cette première partie du tutoriel en amont.**
+- Afin de limiter l'impact sur les autres participant·es, passée cette date, le bot ne sera redémarré qu'une fois par jour, à 3h du matin. **Merci de faire le nécessaire pour réaliser au minimum cette première partie du tutoriel en amont.**
 
 ## Liste des commandes
 | **Commande** | **Description**                                                            |
