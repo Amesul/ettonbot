@@ -10,7 +10,13 @@ const fs = require('fs'); // Bibliothèque pour les opérations de fichiers
 require('dotenv').config();
 
 // Messages automatisés à envoyer
-const automatedMessages = ['Il n\'y a pas de petit don, chaque euro compte !', `Cause à effet Vol. 3, l\'album composé par les artistes de Résonances est dispo ici : ${process.env.URL_ALBUM}`, `La boutique est ouverte ! Achetez votre t-shirt et votre totebag aux couleurs de l\'événement ici : ${process.env.URL_BOUTIQUE}. Design par Thelkana :bleedPurple:`, 'Fondée en 2013, l’association En avant toute(s) lutte pour l’égalité des genres et contre les violences faites aux femmes, aux jeunes et aux personnes LGBTQIA+. Son équipe conseille et redirige les victimes à travers un tchat en ligne anonyme et bienveillant sur https://commentonsaime.fr. Son équipe de prévention intervient auprès des étudiant·es pour aborder l’égalité et les comportements sexistes, et forme les professionnel·les de la jeunesse et le grand public à réagir face aux violences.', 'Marathon caritatif créé en 2021, Et Ta Cause réunit chaque année plusieurs dizaines de créateur·ices de contenu le temps d’un week-end avec deux objectifs : motiver des dons pour une association tout en sensibilisant sur les violences patriarcales. En trois éditions, c’est plus de 140 000€ qui ont été récoltés pour soutenir la Fondation des Femmes (2021), En avant toute(s) (2022) et le Planning Familial (2023).',];
+const automatedMessages = [
+    'Il n\'y a pas de petit don, chaque euro compte !',
+    `Cause à effet Vol. 3, l\'album composé par les artistes de Résonances est dispo ici : ${process.env.URL_ALBUM}`,
+    `La boutique est ouverte ! Achetez votre t-shirt et votre totebag aux couleurs de l\'événement ici : ${process.env.URL_BOUTIQUE}. Design par Thelkana :bleedPurple:`,
+    'Fondée en 2013, l’association En avant toute(s) lutte pour l’égalité des genres et contre les violences faites aux femmes, aux jeunes et aux personnes LGBTQIA+. Son équipe conseille et redirige les victimes à travers un tchat en ligne anonyme et bienveillant sur https://commentonsaime.fr. Son équipe de prévention intervient auprès des étudiant·es pour aborder l’égalité et les comportements sexistes, et forme les professionnel·les de la jeunesse et le grand public à réagir face aux violences.',
+    'Marathon caritatif créé en 2021, Et Ta Cause réunit chaque année plusieurs dizaines de créateur·ices de contenu le temps d’un week-end avec deux objectifs : motiver des dons pour une association tout en sensibilisant sur les violences patriarcales. En trois éditions, c’est plus de 140 000€ qui ont été récoltés pour soutenir la Fondation des Femmes (2021), En avant toute(s) (2022) et le Planning Familial (2023).',
+];
 
 // Map pour stocker les paramètres des messages automatiques par chaîne
 const automaticMessageSettings = new Map();
@@ -127,17 +133,21 @@ const database = new MongoClient(process.env.MONGODB_URI, {
 
     // Initialisation de l'application Express
     const app = express();
-    const port = process.env.PORT || 3000; // Définir le port du serveur
-    const hostname = process.env.HOSTNAME || 'localhost'; // Définir l'hôte du serveur
+    const port = process.env.APP_PORT || 3000; // Définir le port du serveur
+    const hostname = process.env.APP_URL || 'localhost'; // Définir l'hôte du serveur
 
     // Fonction pour redémarrer le bot
-    const restartBot = () => {
-        // Déconnecter le client existant
-        client.disconnect().catch(console.error);
+    const restartBot = async () => {
+        try {
+            // Déconnecter le client existant
+            await client.disconnect().catch(console.error);
 
-        // Redémarrer le client TMI
-        client.connect();
-        console.log('Bot redémarré automatiquement.'); // Log du redémarrage automatique
+            // Redémarrer le client TMI
+            await client.connect();
+            console.log('Bot redémarré automatiquement.'); // Log du redémarrage automatique
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     // Planification du redémarrage quotidien à 3h du matin
@@ -147,11 +157,12 @@ const database = new MongoClient(process.env.MONGODB_URI, {
 
     // Endpoint pour redémarrer le bot manuellement
     app.post('/api/restart', (req, res) => {
-        const {token} = req.body;
+        const token = req.headers.authorization;
 
         // Valider le token
         if (token !== process.env.API_TOKEN) {
-            return res.status(403).json({message: 'Token invalide'}); // Réponse de token invalide
+            console.log('Invalid token.')
+            return res.status(403).json({message: 'Invalid token.'}); // Réponse de token invalide
         }
 
         // Vérifier si la date actuelle est avant le 4 octobre à 15h00
