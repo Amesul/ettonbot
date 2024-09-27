@@ -1,5 +1,5 @@
 // Importation des classes nécessaires depuis le package MongoDB
-const { ServerApiVersion, MongoClient } = require("mongodb");
+const {ServerApiVersion, MongoClient} = require("mongodb");
 // Importation du package dotenv pour charger les variables d'environnement
 require("dotenv").config();
 
@@ -8,7 +8,8 @@ module.exports = {
     name: "config",
     // Alias pour la commande, permettant d'utiliser d'autres mots pour l'invoquer
     aliases: ['configuration', 'setup'],
-
+    // Commande reservée aux admin
+    admin: true,
     // Fonction exécutée lorsque la commande est appelée
     run: async (client, channel, message, tags, arguments) => {
         // Récupération du deuxième argument de la commande
@@ -49,12 +50,12 @@ module.exports = {
             // Connexion du client à la base de données (optionnel à partir de v4.7)
             await database.connect();
             // Envoi d'une commande ping pour confirmer une connexion réussie
-            await database.db("ettonbot").command({ ping: 1 });
+            await database.db("ettonbot").command({ping: 1});
             // Récupération de la collection "streamers" dans la base de données
             const collection = await database.db("ettonbot").collection("streamers");
 
             // Mise à jour ou insertion de la configuration du canal dans la base de données
-            await collection.updateOne({ login: channel }, updateToPerform, { upsert: true });
+            await collection.updateOne({login: channel}, updateToPerform, {upsert: true});
         } finally {
             // Envoi d'un message de confirmation dans le canal
             client.say(channel, 'Configuration enregistrée.');
