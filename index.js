@@ -63,8 +63,9 @@ const database = new MongoClient(process.env.MONGODB_URI, {
     for (const channel of streamerChannels) {
         automaticMessageSettings.set(channel, {count: 0, interval: 5, rate_limit: 20}); // Définir les paramètres initiaux
         channelVipStatus.set(channel, true); // Supposer que toutes les chaînes commencent avec un statut VIP
-        client.say(channel, 'est connecté.'); // Notifier la chaîne qu'elle est connectée
     }
+
+    console.log(automaticMessageSettings);
 
     // Mettre à jour les configurations à partir de la base de données
     await setStreamersSettings(streamerChannels);
