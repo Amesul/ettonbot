@@ -110,7 +110,7 @@ const database = new MongoClient(process.env.MONGODB_URI, {
         const commandName = arguments.shift().toLowerCase(); // Obtenir le nom de la commande
 
         if (commands.has(commandName)) {
-            const isAdmin = tags.mod || tags['badges-raw'].includes('broadcaster');
+            const isAdmin = tags.mod || tags['badges-raw']?.includes('broadcaster');
             if (commands.get(commandName).admin && !isAdmin) return;
             try {
                 commands.get(commandName).run(client, channel, message, tags, arguments); // Exécuter la commande
