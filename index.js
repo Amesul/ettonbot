@@ -10,7 +10,12 @@ const fs = require('fs'); // Bibliothèque pour les opérations de fichiers
 require('dotenv').config();
 
 // Messages automatisés à envoyer
-const automatedMessages = ['Il n\'y a pas de petit don, chaque euro compte !', `Cause à effet Vol. 3, l\'album composé par les artistes de Résonances est dispo ici : ${process.env.URL_ALBUM}`, `La boutique est ouverte ! Achetez votre t-shirt et votre totebag aux couleurs de l\'événement ici : ${process.env.URL_BOUTIQUE}. Design par Thelkana :bleedPurple:`, 'Fondée en 2013, l’association En avant toute(s) lutte pour l’égalité des genres et contre les violences faites aux femmes, aux jeunes et aux personnes LGBTQIA+. Son équipe conseille et redirige les victimes à travers un tchat en ligne anonyme et bienveillant sur https://commentonsaime.fr. Son équipe de prévention intervient auprès des étudiant·es pour aborder l’égalité et les comportements sexistes, et forme les professionnel·les de la jeunesse et le grand public à réagir face aux violences.', 'Marathon caritatif créé en 2021, Et Ta Cause réunit chaque année plusieurs dizaines de créateur·ices de contenu le temps d’un week-end avec deux objectifs : motiver des dons pour une association tout en sensibilisant sur les violences patriarcales. En trois éditions, c’est plus de 140 000€ qui ont été récoltés pour soutenir la Fondation des Femmes (2021), En avant toute(s) (2022) et le Planning Familial (2023).',];
+const automatedMessages = [
+    'Il n\'y a pas de petit don, chaque euro compte !', `Cause à effet Vol. 3, l\'album composé par les artistes de Résonances est dispo ici : ${process.env.URL_ALBUM}`,
+    `La boutique est ouverte ! Achetez votre t-shirt et votre totebag aux couleurs de l\'événement ici : ${process.env.URL_BOUTIQUE}. Design par Thelkana :bleedPurple:`,
+    'Fondée en 2013, l’association En avant toute(s) lutte pour l’égalité des genres et contre les violences faites aux femmes, aux jeunes et aux personnes LGBTQIA+. Son équipe conseille et redirige les victimes à travers un tchat en ligne anonyme et bienveillant sur https://commentonsaime.fr. Son équipe de prévention intervient auprès des étudiant·es pour aborder l’égalité et les comportements sexistes, et forme les professionnel·les de la jeunesse et le grand public à réagir face aux violences.',
+    'Marathon caritatif créé en 2021, Et Ta Cause réunit chaque année plusieurs dizaines de créateur·ices de contenu le temps d’un week-end avec deux objectifs : motiver des dons pour une association tout en sensibilisant sur les violences patriarcales. En trois éditions, c’est plus de 140 000€ qui ont été récoltés pour soutenir la Fondation des Femmes (2021), En avant toute(s) (2022) et le Planning Familial (2023).',
+];
 
 // Map pour stocker les paramètres des messages automatiques par chaîne
 const automaticMessageSettings = new Map();
@@ -51,10 +56,13 @@ const database = new MongoClient(process.env.MONGODB_URI, {
     // Configuration du client TMI
     const client = new TMI.Client({
         options: {
-            debug: process.env.APP_ENV !== 'production', joinInterval: 300,
+            debug: process.env.APP_ENV !== 'production',
+            joinInterval: 300,
         }, identity: {
-            username: process.env.TWITCH_USERNAME, password: `oauth:${process.env.ACCESS_TOKEN}`,
-        }, channels: process.env.APP_ENV === 'production' ? streamerChannels : ['amesul'] // Se connecter aux chaînes récupérées
+            username: process.env.TWITCH_USERNAME,
+            password: `oauth:${process.env.ACCESS_TOKEN}`,
+        },
+        channels: process.env.APP_ENV === 'production' ? streamerChannels : ['amesul'] // Se connecter aux chaînes récupérées
     });
 
     await client.connect(); // Connecter le client TMI
@@ -69,19 +77,17 @@ const database = new MongoClient(process.env.MONGODB_URI, {
     await setStreamersSettings(streamerChannels);
 
     // Vérifier la date actuelle pour activer les messages automatiques
-    const currentDate = new Date();
-    const cutoffDate = new Date(currentDate.getFullYear(), 9, 4, 15, 0, 0); // Octobre est le mois 9 (index basé sur 0)
+    const cutoffDate = new Date(2024, 9, 4, 15, 0, 0); // Octobre est le mois 9 (index basé sur 0)
 
     // Activer l'envoi de messages automatiques si la date est atteinte
-    if (currentDate >= cutoffDate) {
-        for (const channel of streamerChannels) {
-            setInterval(() => {
-                if (channelVipStatus.get(channel)) {
-                    let rand = Math.floor(Math.random() * automatedMessages.length); // Choisir un message aléatoire
-                    client.say(channel, automatedMessages[rand]); // Envoyer le message à la chaîne
-                }
-            }, automaticMessageSettings.get(channel).interval * 60 * 1000); // Définir l'intervalle pour l'envoi des messages
-        }
+
+    for (const channel of streamerChannels) {
+        setInterval(() => {
+            if (channelVipStatus.get(channel) && new Date() <= cutoffDate) {
+                let rand = Math.floor(Math.random() * automatedMessages.length); // Choisir un message aléatoire
+                client.say(channel, automatedMessages[rand]); // Envoyer le message à la chaîne
+            }
+        }, automaticMessageSettings.get(channel).interval * 60 * 1000); // Définir l'intervalle pour l'envoi des messages
     }
 
     // Mettre à jour périodiquement les configurations pour les garder à jour
@@ -110,6 +116,7 @@ const database = new MongoClient(process.env.MONGODB_URI, {
         if (commands.has(commandName)) {
             const isAdmin = tags.mod || tags['badges-raw']?.includes('broadcaster');
             if (commands.get(commandName).admin && !isAdmin) return;
+            if (new Date() <= cutoffDate && !isAdmin) return;
             try {
                 commands.get(commandName).run(client, channel, message, tags, arguments); // Exécuter la commande
             } catch (e) {
