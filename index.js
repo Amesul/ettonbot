@@ -65,8 +65,6 @@ const database = new MongoClient(process.env.MONGODB_URI, {
         channelVipStatus.set(channel, true); // Supposer que toutes les chaînes commencent avec un statut VIP
     }
 
-    console.log(automaticMessageSettings);
-
     // Mettre à jour les configurations à partir de la base de données
     await setStreamersSettings(streamerChannels);
 
