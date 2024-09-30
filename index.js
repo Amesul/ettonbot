@@ -1,10 +1,11 @@
 // Importation des bibliothèques externes
 const express = require('express'); // Framework pour créer des applications web
+const bodyParser = require("body-parser"); // Bibliothèque pour les opérations de fichiers
 const axios = require('axios').default; // Bibliothèque pour faire des requêtes HTTP
 const cron = require('node-cron'); // Bibliothèque pour la planification de tâches
 const {MongoClient, ServerApiVersion} = require("mongodb"); // Importation de MongoDB
 const TMI = require('tmi.js'); // Bibliothèque pour interagir avec l'API Twitch IRC
-const fs = require('fs'); // Bibliothèque pour les opérations de fichiers
+const fs = require('fs');
 
 // Chargement des variables d'environnement à partir du fichier .env
 require('dotenv').config();
@@ -46,6 +47,7 @@ const database = new MongoClient(process.env.MONGODB_URI, {
         for (const obj of response.data) {
             streamerChannels.push(obj.login); // Ajouter le login de chaque streamer à la liste
         }
+        streamerChannels.sort();
     });
 
     // Configuration du client TMI
@@ -69,9 +71,7 @@ const database = new MongoClient(process.env.MONGODB_URI, {
     await setStreamersSettings(streamerChannels);
 
     // Vérifier la date actuelle pour activer les messages automatiques
-    const cutoffDate = new Date(2024, 9, 4, 15, 0, 0); // Octobre est le mois 9 (index basé sur 0)
-
-    // Activer l'envoi de messages automatiques si la date est atteinte
+    const cutoffDate = new Date(2024, 9, 4, 13, 0, 0);
 
     for (const channel of streamerChannels) {
         setInterval(() => {
@@ -126,45 +126,45 @@ const database = new MongoClient(process.env.MONGODB_URI, {
 
     // Initialisation de l'application Express
     const app = express();
+    app.use(bodyParser.json());
     const port = process.env.APP_PORT || 3000; // Définir le port du serveur
     const hostname = process.env.APP_URL || 'localhost'; // Définir l'hôte du serveur
 
     // Fonction pour redémarrer le bot
-    const restartBot = async () => {
+    const restartBot = async (login) => {
         try {
             // Déconnecter le client existant
             await client.disconnect().catch(console.error);
-
+            streamerChannels.push(login)
             // Redémarrer le client TMI
             await client.connect();
-            console.log(streamerChannels);
             console.log('Bot redémarré automatiquement.'); // Log du redémarrage automatique
+            console.log(streamerChannels)
         } catch (e) {
             console.error(e);
         }
     };
 
-    // Planification du redémarrage quotidien à 3h du matin
-    cron.schedule('0 3 * * *', () => {
+    // Planification du redémarrage quotidien à 3h du matin (1h UTC)
+    cron.schedule('0 1 * * *', () => {
         restartBot();
     });
 
     // Endpoint pour redémarrer le bot manuellement
     app.post('/api/restart', (req, res) => {
         const token = req.headers.authorization;
-
         // Valider le token
         if (token !== process.env.API_TOKEN) {
             console.log('Invalid token.')
-            return res.status(403).json({message: 'Invalid token.'}); // Réponse de token invalide
+            return res.status(401).json({message: '401 Unauthorized - Invalid token.'}); // Réponse de token invalide
         }
 
         // Vérifier si la date actuelle est avant le 4 octobre à 15h00
         if (new Date() < cutoffDate) {
-            restartBot();
-            res.status(200).json({message: 'Bot redémarré avec succès'}); // Réponse de redémarrage réussie
+            restartBot(req.body.login);
+            res.status(200).json({message: '200 OK - Bot redémarré avec succès'}); // Réponse de redémarrage réussie
         } else {
-            res.status(403).json({message: 'Le redémarrage du bot n\'est plus autorisé après le 4 octobre à 15h.'}); // Réponse de coupure
+            res.status(403).json({message: '403 Forbidden - Le redémarrage du bot n\'est plus autorisé après le 4 octobre à 15h.'}); // Réponse de coupure
         }
     });
 
