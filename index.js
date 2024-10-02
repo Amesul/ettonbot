@@ -131,7 +131,7 @@ function setupAutomaticMessages(client, streamerChannels) {
         // Si la commande existe
         if (commands.has(commandName)) {
             const command = commands.get(commandName);
-            const isAdmin = tags.mod || tags.badges?.includes('broadcaster'); // Vérifier si l'utilisateur est admin (modérateur ou propriétaire du canal)
+            const isAdmin = tags.mod || tags['badges-raw']?.includes('broadcaster'); // Vérifier si l'utilisateur est admin (modérateur ou propriétaire du canal)
             if (command.admin && !isAdmin || (new Date() <= cutoffDate && !isAdmin)) return; // Si admin nécessaire mais non admin, refuser
 
             try {
